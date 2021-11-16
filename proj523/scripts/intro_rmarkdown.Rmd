@@ -240,19 +240,23 @@ colnames(ss_dftemp_t) <- c('mean', 'min', 'max', 'sd')
 ss_dftemp_t %>% kable(caption = 'Summary Stats')
 ```
 
-#### Data vis for bike data
+#### Data vis for bike rentals
 
-```{r, echo=TRUE}
+Explore the relationship between `cnt` and `temp` for our bike data
+
+```{r data_vis, echo=TRUE}
 ggplot(dftemp, aes(temp, cnt)) +
   theme_minimal() +
   geom_point() +
   labs(title = 'Daily Bike Rental and Temperature',
        x = 'Temperature (F, normalized)',
-       y = 'Bycicle Rentals') +
+       y = 'Bicycle Rentals') +
   theme(plot.title = element_text(face = 'bold', hjust = 0.5))
 ```
 
-```{r}
+#### Initial model relationships
+
+```{r data_mods, echo=TRUE}
 dftemp <- dftemp %>% 
   mutate(temp2 = temp^2)
 
@@ -265,19 +269,21 @@ mod2 <- lm(formula = cnt ~ temp + temp2,
 pred_mod1 <- predict(mod1, dftemp %>% select(temp))
 pred_mod2 <- predict(mod2, dftemp %>% select(temp, temp2))
 
-dftemp <- bind_cols(dftemp,
-                    list(cnt_mod1 = pred_mod1, cnt_mod2 = pred_mod2))
+# dftemp <- dftemp %>% 
+#   mutate(cnt_mod1 = pred_mod1,
+#          cnt_mod2 = pred_mod2)
+
+dftemp <- bind_cols(dftemp, list(cnt_mod1 = pred_mod1,
+                                 cnt_mod2 = pred_mod2))
 ```
 
-```{r}
+```{r model_summary, echo=TRUE}
 summary(mod1)$coefficients %>% kable(caption = 'Model 1 Summary (Dep. cnt)')
+
+broom::tidy(mod2) %>% kable(caption =  'Mod 2')
 ```
 
-```{r}
-broom::tidy(mod2) %>% kable(caption = 'Model 2 Summary')
-```
-
-```{r}
+```{r mod_vis_linear, echo=TRUE}
 ggplot(dftemp, aes(temp, cnt)) +
   theme_minimal() +
   geom_point() +
@@ -285,24 +291,23 @@ ggplot(dftemp, aes(temp, cnt)) +
   geom_line(aes(temp, cnt_mod2), color = 'blue', size = 1) +
   labs(title = 'Daily Bike Rental and Temperature',
        x = 'Temperature (F, normalized)',
-       y = 'Bycicle Rentals') +
+       y = 'Bicycle Rentals') +
   theme(plot.title = element_text(face = 'bold', hjust = 0.5))
 ```
 
-```{r}
+
+```{r mod_vis_leg, echo=TRUE}
 ggplot(dftemp, aes(temp, cnt)) +
   theme_minimal() +
   geom_point() +
   geom_line(aes(temp, cnt_mod1, color = 'f(temp)'), size = 1) +
-  geom_line(aes(temp, cnt_mod2, color = 'f(temp, temp^2)'), size = 1) +
+  geom_line(aes(temp, cnt_mod2, color = 'f(temp, temp2)'), size = 1) +
   labs(title = 'Daily Bike Rental and Temperature',
        x = 'Temperature (F, normalized)',
-       y = 'Bycicle Rentals',
+       y = 'Bicycle Rentals',
        color = 'Functions') +
   theme(plot.title = element_text(face = 'bold', hjust = 0.5)) +
   scale_color_manual(values = c('f(temp)' = 'red',
-                                'f(temp, temp^2)' = 'blue'))
+                                'f(temp, temp2)' = 'blue'))
 ```
-
-
 
