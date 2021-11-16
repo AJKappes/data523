@@ -1,0 +1,308 @@
+---
+title: "My First Rmarkdown Doc"
+author:
+  - "Alex Kappes"
+  - 'Collaborator'
+date: "11/4/2021"
+abstract: |
+  This is my abstract.
+  
+  It consists of two paragraphs.
+output: html_document
+---
+
+```{r global_chunk, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, fig.align = 'center')
+#setwd('~/teaching/data523/proj523')
+
+library(tidyverse)
+library(knitr)
+```
+
+
+<style type='text/css'>
+  body {
+  font-size: 9pt;
+  font-family: 'serif'
+}
+</style>
+
+# Header 1
+Biggest
+
+## Header 2
+Big
+
+### Header 3
+Pretty big
+
+#### Header 4
+Bold line of text
+
+<!-- horizontal rule -->
+
+<!-- type a comment -->
+
+# Intro to Rmarkdown
+
+Here is an example of **bold** text, along with another example of __bold__ text <br>
+Here is an example of *italic* text, along with another example of _italic_ text <br>
+What about ***bold italic***, ___bold italic___ <br>
+What about superscripts x^2^ <br>
+What about subscripts x~2~ <br>
+What about <u>underlined</u> <br>
+~~Underline~~ = **NO**
+
+<!-- new paragraphs -->
+
+Topic 1. Such a fascinating paragraph
+
+Topic 2.
+
+Topic 3. This is the final paragraph and it as a footnote[^1].
+
+[^1]: This is what's in our footnote.
+
+<!-- body of the document -->
+
+This is our introduction and we want to include important info from someone in our field
+
+> This is a quote from an important person
+>
+> This is another **important** quote from someone
+>
+>> and we'll include a nested quote
+
+We can go back to including regular text after block quotes
+
+At the end of our introduction we want to provide a roadmap of the steps in the analysis
+
+A numbered list
+
+1. Item 1
+2. Item 2
+3. Item 3
+
+Line place holder
+
+3. Item 1
+1. Item 2
+2. Item 3
+
+A symbol list
+
+- item 1
+- item 2
+- item 3
+
+* item 1
+* item 2
+* item 3
+
+A list with sublists
+
+1. item 1
+    i. subitem 1
+2. item 2
+    ii. subitem 2
+3. item 3
+    iii. subitem 3
+
+This is a block quote with a list
+
+> This is my super important list
+>
+> 1. item 1
+> 2. item 2
+> 3. item 3
+
+We want list items to include paragraph elements
+<!-- indent with 4 spaces, 2x tab -->
+
+1. item 1
+
+    This is a paragraph for item 1
+
+2. item 2
+
+    This is paragraph for item 2
+
+3. item 3
+
+    This is a paragraph for item 3 This is a paragraph for item 3This is a paragraph for item 3 This is a paragraph for item 3This is a paragraph for item 3This is a paragraph for item 3This is a paragraph for item 3This is a paragraph for item 3This is a paragraph for item 3This is a paragraph for item 3This is a paragraph for item 3This is a paragraph for item 3This is a paragraph for item 3This is a paragraph for item 3This is a paragraph for item 3
+
+Tables in non-R script markdown
+
+  Col 1          Col 2          Col 3           Col 4
+-------          -------      ---------         -----
+     1           1                1               1
+     12          12              12               12
+    123          123             123              123
+
+Table: This is an example of a messy table
+
+  Col 1          Col 2          Col 3           Col 4
+ -------        -------       ---------       ---------
+  words           1                1               1
+     12          12              12               12
+    123          123             123              123
+
+Table: This is an example of a clean(er) table
+
+Let's say we want to include a link to important information. We can easily include a link with <http://rmarkdown.rstudio.com/lesson-1.html>
+
+Or another way 
+[This is a link](http://rmarkdown.rstudio.com/lesson-1.html)
+
+Include non-R graphics in our document
+![](https://bookdown.org/yihui/rmarkdown/images/hex-rmarkdown.png)
+![](https://bookdown.org/yihui/rmarkdown/images/hex-rmarkdown.png){width=25%}
+
+# Code chunks in Rmarkdown
+
+```{r graphic1, out.width='25%', fig.cap='A graphic caption'}
+knitr::include_graphics('https://bookdown.org/yihui/rmarkdown/images/hex-rmarkdown.png')
+```
+
+
+<!--
+
+$set() configure all options for all chunks in on place
+
+include = FALSE prevents code and results from displaying but still runs the code
+
+echo = FALSE prevents but not results from displaying
+
+message = FALSE prevents messages from being displayed but R still runs the code
+
+warning = FALSE prevents warnings from being displayed but R still runs the code
+
+-->
+
+```{r data_xy, echo=TRUE}
+x <- rnorm(n = 100, mean = 5, sd = 1)
+y <- 2 + 2*x + rnorm(n = length(x))
+```
+
+```{r data_plot, echo=TRUE}
+plot(x, y, main = 'y = f(x)')
+```
+
+Include information on the relationship between (x, y)
+
+Our response variable $y$ is distributed $N(\mu, \sigma^2)$, where
+\begin{align}
+\mu &= 2 + 2E[x] + E[e] \\
+\sigma^2 &= 2^2Var[x] + Var[e] + 2(2)Cov(x, e)
+\end{align}
+
+Our small sample provides $\mu=$ `r mean(y)` and $\sigma^2=$ `r var(y)`.
+
+$\mu=$ `r round(mean(y), digits = 2)`
+
+$\sigma^2=$ `r round(var(y), digits = 2)`
+
+For centered equation that is not aligned
+
+$$
+y = f(x)
+$$
+We'll read in data and do some exploratory analysis
+
+```{r data_import, echo=TRUE, message=FALSE}
+df_all <- read_csv('../data/daily_bike_data.csv')
+dftemp <- df_all %>% 
+  select(cnt, temp)
+```
+
+Below displays summary stats of our variables of interest
+
+```{r data_summary, echo=TRUE}
+ss_dftemp <- sapply(dftemp,
+                    function(i) c(mean(i), min(i), max(i), sd(i))) %>% 
+  data.frame() %>% 
+  round(digits = 2)
+
+row.names(ss_dftemp) <- c('mean', 'min', 'max', 'sd')
+ss_dftemp %>% kable(caption = 'Summary Statistics')
+```
+
+Transposed table for sum stats
+
+```{r}
+ss_dftemp_t <- sapply(dftemp,
+                    function(i) c(mean(i), min(i), max(i), sd(i))) %>%
+  t() %>% 
+  data.frame() %>% 
+  round(digits = 2)
+
+colnames(ss_dftemp_t) <- c('mean', 'min', 'max', 'sd')
+ss_dftemp_t %>% kable(caption = 'Summary Stats')
+```
+
+#### Data vis for bike data
+
+```{r, echo=TRUE}
+ggplot(dftemp, aes(temp, cnt)) +
+  theme_minimal() +
+  geom_point() +
+  labs(title = 'Daily Bike Rental and Temperature',
+       x = 'Temperature (F, normalized)',
+       y = 'Bycicle Rentals') +
+  theme(plot.title = element_text(face = 'bold', hjust = 0.5))
+```
+
+```{r}
+dftemp <- dftemp %>% 
+  mutate(temp2 = temp^2)
+
+mod1 <- lm(formula = cnt ~ temp,
+           data = dftemp)
+
+mod2 <- lm(formula = cnt ~ temp + temp2,
+           data = dftemp)
+
+pred_mod1 <- predict(mod1, dftemp %>% select(temp))
+pred_mod2 <- predict(mod2, dftemp %>% select(temp, temp2))
+
+dftemp <- bind_cols(dftemp,
+                    list(cnt_mod1 = pred_mod1, cnt_mod2 = pred_mod2))
+```
+
+```{r}
+summary(mod1)$coefficients %>% kable(caption = 'Model 1 Summary (Dep. cnt)')
+```
+
+```{r}
+broom::tidy(mod2) %>% kable(caption = 'Model 2 Summary')
+```
+
+```{r}
+ggplot(dftemp, aes(temp, cnt)) +
+  theme_minimal() +
+  geom_point() +
+  geom_line(aes(temp, cnt_mod1), color = 'red', size = 1) +
+  geom_line(aes(temp, cnt_mod2), color = 'blue', size = 1) +
+  labs(title = 'Daily Bike Rental and Temperature',
+       x = 'Temperature (F, normalized)',
+       y = 'Bycicle Rentals') +
+  theme(plot.title = element_text(face = 'bold', hjust = 0.5))
+```
+
+```{r}
+ggplot(dftemp, aes(temp, cnt)) +
+  theme_minimal() +
+  geom_point() +
+  geom_line(aes(temp, cnt_mod1, color = 'f(temp)'), size = 1) +
+  geom_line(aes(temp, cnt_mod2, color = 'f(temp, temp^2)'), size = 1) +
+  labs(title = 'Daily Bike Rental and Temperature',
+       x = 'Temperature (F, normalized)',
+       y = 'Bycicle Rentals',
+       color = 'Functions') +
+  theme(plot.title = element_text(face = 'bold', hjust = 0.5)) +
+  scale_color_manual(values = c('f(temp)' = 'red',
+                                'f(temp, temp^2)' = 'blue'))
+```
+
+
+
